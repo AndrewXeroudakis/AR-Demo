@@ -8,6 +8,7 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace easyar
 {
@@ -18,8 +19,8 @@ namespace easyar
 
         private bool firstFound;
 
-        public event Action TargetFound;
-        public event Action TargetLost;
+        public UnityEvent TargetFound;
+        public UnityEvent TargetLost;
 
         public enum ActiveControlStrategy
         {
@@ -35,7 +36,15 @@ namespace easyar
         {
             if (!IsTracked && (ActiveControl == ActiveControlStrategy.HideWhenNotTracking || ActiveControl == ActiveControlStrategy.HideBeforeFirstFound))
             {
-                gameObject.SetActive(false);
+                ActivateRenderers(false);
+            }
+        }
+
+        void ActivateRenderers(bool _active)
+        {
+            foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
+            {
+                renderer.enabled = _active;
             }
         }
 
@@ -47,23 +56,23 @@ namespace easyar
                 {
                     if (ActiveControl == ActiveControlStrategy.HideWhenNotTracking || (ActiveControl == ActiveControlStrategy.HideBeforeFirstFound && !firstFound))
                     {
-                        gameObject.SetActive(true);
+                        ActivateRenderers(true);
                     }
                     firstFound = true;
                     if (TargetFound != null)
                     {
-                        TargetFound();
+                        TargetFound.Invoke();
                     }
                 }
                 else
                 {
                     if (ActiveControl == ActiveControlStrategy.HideWhenNotTracking)
                     {
-                        gameObject.SetActive(false);
+                        ActivateRenderers(false);
                     }
                     if (TargetLost != null)
                     {
-                        TargetLost();
+                        TargetLost.Invoke();
                     }
                 }
                 IsTracked = status;
