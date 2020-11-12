@@ -11,7 +11,7 @@ public class AudioController : MonoBehaviour
 
     AudioSource audioSource;
 
-    void Awake()
+    private void Start()
     {
         audioSource = GetComponent<AudioSource>();
     }
